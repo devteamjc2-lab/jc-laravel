@@ -2,9 +2,14 @@
 FROM php:8.3-cli
 
 RUN apt-get update && apt-get install -y \
-    git unzip libpq-dev libzip-dev \
-    && docker-php-ext-install pdo pdo_pgsql zip \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    git unzip curl \
+    libpq-dev libzip-dev libicu-dev \
+    libonig-dev libxml2-dev \
+    && docker-php-ext-install \
+    pdo pdo_pgsql mbstring bcmath \
+    intl xml zip \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
@@ -12,7 +17,7 @@ WORKDIR /var/www/html
 
 COPY . .
 
-RUN composer install --no-dev --optimize-autoloader
+RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 RUN php artisan package:discover
 
